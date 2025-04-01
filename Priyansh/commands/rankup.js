@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "rankup",
 	version: "7.3.1",
 	hasPermssion: 1,
-	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
+	credits: "Gudiya",
 	description: "Announce rankup for each group, user",
 	commandCategory: "Edit-IMG",
 	dependencies: {
@@ -18,7 +18,7 @@ module.exports.handleEvent = async function({ api, event, Currencies, Users, get
   const fs = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
   let pathImg = __dirname + "/noprefix/rankup/rankup.png";
-  let pathAvt1 = __dirname + "/cache/avtmot.png";
+  let pathAvt1 = __dirname + "/cache/Avtmot.png";
   var id1 = event.senderID;
   
 
@@ -52,13 +52,12 @@ module.exports.handleEvent = async function({ api, event, Currencies, Users, get
 		const moduleName = this.config.name;
 
     var background = [
-  "https://i.imgur.com/tVCXB0q.jpeg",
-  "https://i.imgur.com/JBYox72.jpeg",
-  "https://i.imgur.com/SRRuSRk.jpeg",   "https://i.imgur.com/qhx5HLz.jpeg",
-  "https://i.imgur.com/kbB4AfZ.jpeg",
-  "https://i.imgur.com/9oxlszW.jpeg",
-  "https://i.imgur.com/cJj8LTu.jpeg",   "https://i.imgur.com/LHb5eJt.jpeg",
-
+  "https://i.imgur.com/RLKDQ41.jpeg",
+  "https://i.imgur.com/PBo8AFu.jpeg",
+  "https://i.imgur.com/Ohc2CAp.jpeg",
+  "https://i.imgur.com/bnECnOC.jpeg",
+  "https://i.imgur.com/J7dBZ22.jpeg",
+  "https://i.imgur.com/CFjcpFx.jpeg"
   ];
     var rd = background[Math.floor(Math.random() * background.length)];
     let getAvtmot = (
@@ -82,7 +81,7 @@ module.exports.handleEvent = async function({ api, event, Currencies, Users, get
     let ctx = canvas.getContext("2d");
     ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
     ctx.rotate(-25 * Math.PI / 180);
-    ctx.drawImage(baseAvt1, 40, 710, 630, 700);
+    ctx.drawImage(baseAvt1, 70, 700, 635, 700);
     const imageBuffer = canvas.toBuffer();
     fs.writeFileSync(pathImg, imageBuffer);
     fs.removeSync(pathAvt1);
@@ -105,7 +104,7 @@ module.exports.languages = {
 		"on": "on",
 		"off": "off",
 		"successText": "success notification rankup!",
-		"levelup": "{name}, your keyboard has reached level {level}",
+		"levelup": "{name}, your keyboard hero level has reached level 😘 ➢【 {level}】",
 	}
 }
 
@@ -119,4 +118,4 @@ module.exports.run = async function({ api, event, Threads, getText }) {
 	await Threads.setData(threadID, { data });
 	global.data.threadData.set(threadID, data);
 	return api.sendMessage(`${(data["rankup"] == true) ? getText("on") : getText("off")} ${getText("successText")}`, threadID, messageID);
-                    }
+             }

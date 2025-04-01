@@ -1,11 +1,11 @@
 module.exports.config = {
-    name: "kiss",
-    version: "2.0.0",
+    name: "fuckv4",
+    version: "3.1.1",
     hasPermssion: 0,
-    credits: "ZiaRein",
-    description: "kiss someone",
-    commandCategory: "Love",
-    usages: `Please tag 1 person\n\nHow to use?\n${global.config.PREFIX}kiss <@tag>\n\nExample:\n${global.config.PREFIX}kiss @name\n`,
+    credits: "John Lester",
+    description: "Get fuck",
+    commandCategory: "img",
+    usages: "[@mention]",
     cooldowns: 5,
     dependencies: {
         "axios": "",
@@ -19,11 +19,10 @@ module.exports.onLoad = async() => {
     const { resolve } = global.nodemodule["path"];
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
     const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/`;
-    const path = resolve(__dirname, 'cache', 'hon.png');
-    if (!existsSync(dirMaterial + "")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/BtSlsSS.jpg", path);
-
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'fucksv5.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.ibb.co/VJHCjCb/images-2022-08-14-T183802-542.jpg", path);
 }
 
 async function makeImage({ one, two }) {
@@ -31,10 +30,10 @@ async function makeImage({ one, two }) {
     const path = global.nodemodule["path"];
     const axios = global.nodemodule["axios"]; 
     const jimp = global.nodemodule["jimp"];
-    const __root = path.resolve(__dirname, "cache");
+    const __root = path.resolve(__dirname, "cache", "canvas");
 
-    let hon_img = await jimp.read(__root + "/hon.png");
-    let pathImg = __root + `/hon_${one}_${two}.png`;
+    let batgiam_img = await jimp.read(__root + "/fucksv5.png");
+    let pathImg = __root + `/batman${one}_${two}.png`;
     let avatarOne = __root + `/avt_${one}.png`;
     let avatarTwo = __root + `/avt_${two}.png`;
     
@@ -46,9 +45,9 @@ async function makeImage({ one, two }) {
     
     let circleOne = await jimp.read(await circle(avatarOne));
     let circleTwo = await jimp.read(await circle(avatarTwo));
-    hon_img.resize(700, 440).composite(circleOne.resize(200, 200), 390, 23).composite(circleTwo.resize(180, 180), 140, 80);
+    batgiam_img.composite(circleOne.resize(1, 1), 1, 1).composite(circleTwo.resize(150, 150), 460, 20);
     
-    let raw = await hon_img.getBufferAsync("image/png");
+    let raw = await batgiam_img.getBufferAsync("image/png");
     
     fs.writeFileSync(pathImg, raw);
     fs.unlinkSync(avatarOne);
@@ -63,18 +62,13 @@ async function circle(image) {
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args, Currencies }) { 
+module.exports.run = async function ({ event, api, args }) {    
     const fs = global.nodemodule["fs-extra"];
-    const ae = ["💚 congrats❤","💙 congrats💜"];
-    const hc = Math.floor(Math.random() * 101) + 101;
-    const rd = Math.floor(Math.random() * 10) + 1;
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
-    var one = senderID, two = mention[0];
-  await Currencies.increaseMoney(event.senderID, parseInt(hc*rd));
-  
-  if (!two) return api.sendMessage(`Please tag 1 person\n\nHow to use?\n${global.config.PREFIX}kiss <@tag>\n\nExample:\n${global.config.PREFIX}kiss @name\n\nCreated by: ZiaRein`, threadID, messageID);
-  else {
-        return makeImage({ one, two }).then(path => api.sendMessage({ body: `${ae[Math.floor(Math.random() * ae.length)]}\nYour sympathy after being stolen is ${hc} %\n + ${((hc)*rd)} $`, attachment: fs.createReadStream(path)}, threadID, () => fs.unlinkSync(path), messageID));
-  }
-  }
+    if (!mention[0]) return api.sendMessage("Please mention 1 person.", threadID, messageID);
+    else {
+        const one = senderID, two = mention[0];
+        return makeImage({ one, two }).then(path => api.sendMessage({ body: "", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));
+    }
+      }
