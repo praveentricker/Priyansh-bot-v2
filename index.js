@@ -1,77 +1,159 @@
-const { spawn } = require("child_process");
+const assets = require('@miraipr0ject/assets');
+const crypto = require('crypto');
+const os = require("os");
 const axios = require("axios");
-const logger = require("./utils/log");
+const config = require('../config.json');
+const package = require('../package.json');
 
-///////////////////////////////////////////////////////////
-//========= Create website for dashboard/uptime =========//
-///////////////////////////////////////////////////////////
-
-const express = require('express');
-const path = require('path');
-
-const app = express();
-const port = process.env.PORT || 8080;
-
-// Serve the index.html file
-app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '/index.html'));
-});
-
-// Start the server and add error handling
-app.listen(port, () => {
-    logger(`Server is running on port ${port}...`, "[ Starting ]");
-}).on('error', (err) => {
-    if (err.code === 'EACCES') {
-        logger(`Permission denied. Cannot bind to port ${port}.`, "[ Error ]");
-    } else {
-        logger(`Server error: ${err.message}`, "[ Error ]");
+module.exports.getYoutube = async function(t, e, i) {
+    require("ytdl-core");
+    const o = require("axios");
+    if ("search" == e) {
+      const e = require("youtube-search-api");
+      return t ? a = (await e.GetListByKeyword(t, !1, 6)).items : console.log("Missing data")
     }
-});
-
-/////////////////////////////////////////////////////////
-//========= Create start bot and make it loop =========//
-/////////////////////////////////////////////////////////
-
-// Initialize global restart counter
-global.countRestart = global.countRestart || 0;
-
-function startBot(message) {
-    if (message) logger(message, "[ Starting ]");
-
-    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "Priyansh.js"], {
-        cwd: __dirname,
-        stdio: "inherit",
-        shell: true
-    });
-
-    child.on("close", (codeExit) => {
-        if (codeExit !== 0 && global.countRestart < 5) {
-            global.countRestart += 1;
-            logger(`Bot exited with code ${codeExit}. Restarting... (${global.countRestart}/5)`, "[ Restarting ]");
-            startBot();
-        } else {
-            logger(`Bot stopped after ${global.countRestart} restarts.`, "[ Stopped ]");
-        }
-    });
-
-    child.on("error", (error) => {
-        logger(`An error occurred: ${JSON.stringify(error)}`, "[ Error ]");
-    });
+    if ("getLink" == e) {
+      var a = (await o.post("https://aiovideodl.ml/wp-json/aio-dl/video-data/", {
+        url: "https://www.youtube.com/watch?v=" + t
+      })).data;
+        return "video" == i ? {
+          title: a.title,
+          duration: a.duration,
+          download: {
+            SD: a.medias[1].url,
+            HD: a.medias[2].url
+          }
+        } : "audio" == i ? {
+          title: a.title,
+          duration: a.duration,
+          download: a.medias[3].url
+        } : void 0
+      }
 };
 
-////////////////////////////////////////////////
-//========= Check update from Github =========//
-////////////////////////////////////////////////
+module.exports.throwError = function (command, threadID, messageID) {
+	const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+	return global.client.api.sendMessage(global.getText("utils", "throwError", ((threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX), command), threadID, messageID);
+}
 
-axios.get("https://raw.githubusercontent.com/priyanshu192/bot/main/package.json")
-    .then((res) => {
-        logger(res.data.name, "[ NAME ]");
-        logger(`Version: ${res.data.version}`, "[ VERSION ]");
-        logger(res.data.description, "[ DESCRIPTION ]");
-    })
-    .catch((err) => {
-        logger(`Failed to fetch update info: ${err.message}`, "[ Update Error ]");
-    });
+module.exports.cleanAnilistHTML = function (text) {
+	text = text
+		.replace('<br>', '\n')
+		.replace(/<\/?(i|em)>/g, '*')
+		.replace(/<\/?b>/g, '**')
+		.replace(/~!|!~/g, '||')
+		.replace("&amp;", "&")
+		.replace("&lt;", "<")
+		.replace("&gt;", ">")
+		.replace("&quot;", '"')
+		.replace("&#039;", "'");
+	return text;
+}
 
-// Start the bot
-startBot();
+module.exports.downloadFile = async function (url, path) {
+	const { createWriteStream } = require('fs');
+	const axios = require('axios');
+
+	const response = await axios({
+		method: 'GET',
+		responseType: 'stream',
+		url
+	});
+
+	const writer = createWriteStream(path);
+
+	response.data.pipe(writer);
+
+	return new Promise((resolve, reject) => {
+		writer.on('finish', resolve);
+		writer.on('error', reject);
+	});
+};
+
+module.exports.getContent = async function(url) {
+	try {
+		const axios = require("axios");
+
+		const response = await axios({
+			method: 'GET',
+			url
+		});
+
+		const data = response;
+
+		return data;
+	} catch (e) { return console.log(e); };
+}
+
+module.exports.randomString = function (length) {
+	var result           = '';
+	var characters       = 'ABCDKCCzwKyY9rmBJGu48FrkNMro4AWtCkc1flmnopqrstuvwxyz';
+	var charactersLength = characters.length || 5;
+	for ( var i = 0; i < length; i++ ) result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	return result;
+}
+
+module.exports.assets = {
+	async font (name) {
+		if (!assets.font.loaded) await assets.font.load();
+		return assets.font.get(name);
+	},
+	async image (name) {
+		if (!assets.image.loaded) await assets.image.load();
+		return assets.image.get(name);
+	},
+	async data (name) {
+		if (!assets.data.loaded) await assets.data.load();
+		return assets.data.get(name);
+	}
+}
+
+module.exports.AES = {
+	encrypt (cryptKey, crpytIv, plainData) {
+		var encipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(cryptKey), Buffer.from(crpytIv));
+        var encrypted = encipher.update(plainData);
+		encrypted = Buffer.concat([encrypted, encipher.final()]);
+		return encrypted.toString('hex');
+	},
+	decrypt (cryptKey, cryptIv, encrypted) {
+		encrypted = Buffer.from(encrypted, "hex");
+		var decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(cryptKey), Buffer.from(cryptIv, 'binary'));
+		var decrypted = decipher.update(encrypted);
+	
+		decrypted = Buffer.concat([decrypted, decipher.final()]);
+	
+		return String(decrypted);
+	},
+	makeIv () { return Buffer.from(crypto.randomBytes(16)).toString('hex').slice(0, 16); }
+}
+
+module.exports.homeDir = function () {
+	var returnHome, typeSystem;
+	const home = process.env["HOME"];
+	const user = process.env["LOGNAME"] || process.env["USER"] || process.env["LNAME"] || process.env["USERNAME"];
+
+	switch (process.platform) {
+		case "win32": {
+			returnHome = process.env.USERPROFILE || process.env.HOMEDRIVE + process.env.HOMEPATH || home || null;
+			typeSystem = "win32"
+			break;
+		}
+		case "darwin": {
+			returnHome = home || (user ? '/Users/' + user : null);
+			typeSystem = "darwin";
+			break;
+		}
+		case "linux": {
+			returnHome =  home || (process.getuid() === 0 ? '/root' : (user ? '/home/' + user : null));
+			typeSystem = "linux"
+			break;
+		}
+		default: {
+			returnHome = home || null;
+			typeSystem = "unknow"
+			break;
+		}
+	}
+
+	return [typeof os.homedir === 'function' ? os.homedir() : returnHome, typeSystem];
+}
